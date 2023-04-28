@@ -4,36 +4,10 @@ import pickle
 import json
 
 from pandas import json_normalize
-from csv import writer
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
-def get_best_wine():
-    
-    """this function returns the best wine possible in the given dataset
-
-    Returns:
-        best_wine (dict): wine criterias that can be used to determine its quality.
-    """
-    
-    df = pd.read_csv("Wines.csv")
-    df = df.sort_values(by = 'quality', ascending=False)
-
-    best_wine = {'fixedAcidity' : df.iloc[0][0],
-        'volatileAcidity' : df.iloc[0][1],
-        'citricAcid' : df.iloc[0][2],
-        'residualSugar' : df.iloc[0][3],
-        'chlorides' : df.iloc[0][4],
-        'freeSulfurDioxide' : df.iloc[0][5],
-        'totalSulfurDioxide' : df.iloc[0][6],
-        'density' : df.iloc[0][7],
-        'pH' : df.iloc[0][8],
-        'sulphates' : df.iloc[0][9],
-        'alcohol' : df.iloc[0][10]}
-
-    return best_wine
 
 def get_best_movies(n=3):
     
@@ -57,7 +31,7 @@ def get_best_movies(n=3):
     
     # On parcourt les n premiers films et on ajoute les informations dans la liste 'best_movies'.
     for i in range(n):
-        movie = {'adult': df.iloc[i]['adult'],
+        movie = {'adult': int(df.iloc[i]['adult']),
                  'name': df.iloc[i]['name'],
                  'genres': df.iloc[i]['genres'],
                  'poster_path': df.iloc[i]['poster_path'],
@@ -107,7 +81,7 @@ def get_model(df):
     x_train, x_test, y_train, y_test = train_test_split(features, df['note'], test_size=0.2, random_state=40)
     
     # Create a regression model using Random Forest
-    model = RandomForestRegressor(random_state=1)
+    model = RandomForestClassifier(random_state=1)
     
     return model, x_train, x_test, y_train, y_test
 
@@ -129,20 +103,30 @@ def train_model(model, x_train, y_train):
     return(model)
 
 
-def predict_quality(new_wine,model):
-    
-    """predicts the wine's quality thanks to the model
-    
+def predict_rating(new_movie, model):
+    """
+    Predicts the movie's rating using the given model. Useful to predict scores for movies that the user has not seen before.
+
     Args:
-        new_wine (Wine): new wine, wich we want to rate
-        model (RandomForestClassifier) : model used to predict the quality
+        new_movie (dict): Dictionary containing the movie's data.
+        model (RandomForestRegressor): Model used to predict the rating.
 
     Returns:
-        model.predict(new)[0] (int): the wine's quality (from 3 to 8 because of the data set, but could be different if we add more data)
+        predicted_rating (float): The movie's predicted rating.
     """
     
-    new = pd.DataFrame(new_wine, index=[0])
-    return int(model.predict(new)[0])
+    # Create a DataFrame with the new movie data
+    new = pd.json_normalize(new_movie, record_path='genres', meta=['adult', 'name', 'poster_path'])
+    new = new.drop(columns=['adult', 'poster_path'])
+    new = new.groupby(['name'])['id'].apply(list).reset_index(name='genres')
+    new = pd.concat([new.drop(['genres'], axis=1), pd.json_normalize(new['genres'])], axis=1)
+    new = new.drop(columns=['id'])
+    
+    # Predict the rating using the model
+    predicted_rating = model.predict(new)[0]
+    
+    return predicted_rating
+
 
 
 def description(model, x_test, y_test):
@@ -170,25 +154,29 @@ def description(model, x_test, y_test):
     return params, accuracy
 
 
-def add_to_df(df,new_row):
-    
-    """adds a new entry (wine) to the csv
-    
+def add_to_df(df, new_row):
+    """
+    This function adds a new movie entry to the movies dataframe.
+
     Args:
-        df (dataframe): Wines.csv
-        new_row (dataframe): new wine entry
+        df (dataframe): movies dataframe.
+        new_row (dict): new movie entry.
+
+    Returns:
+        None
     """
     
     last_row = df.tail(1)
-    new_id = int(last_row.iloc[0][12]+1)
-    new_line = [new_row['fixedAcidity'],new_row['volatileAcidity'],new_row['citricAcid'],new_row['residualSugar'],
-    new_row['chlorides'],new_row['freeSulfurDioxide'],new_row['totalSulfurDioxide'],new_row['density'],new_row['pH'],
-    new_row['sulphates'],new_row['alcohol'],new_row['quality'],new_id]
+    new_id = int(last_row.iloc[0]['id']) + 1
+    new_row['id'] = new_id
+    
+    with open('movies.json', 'r') as f:
+        data = json.load(f)
+    
+    data.append(new_row)
 
-    with open('Wines.csv', 'a') as f_object:
-        writer_object = writer(f_object)
-        writer_object.writerow(new_line)
-        f_object.close()
+    with open('movies.json', 'w') as f:
+        json.dump(data, f)
 
 
 #save model in model.pkl
