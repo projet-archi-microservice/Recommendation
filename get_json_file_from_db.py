@@ -33,8 +33,8 @@ def get_n_movies(n):
     cur = conn.cursor()
         
     # execute a statement
-    cur.execute(f"SELECT json_agg(json_build_object('id', id, 'title', title, 'release_date', release_date, 'vote_average', max_vote)) FROM (SELECT id, title, release_date, MAX(vote_average) as max_vote FROM movies GROUP BY id, title, release_date ORDER BY MAX(vote_average) DESC LIMIT {n}) as subquery;")
-
+    cur.execute(f"SELECT json_agg(json_build_object('id', id, 'title', title, 'release_date', release_date, 'genre_ids', genre_ids, 'vote_average', vote_average)) FROM (SELECT id, title, release_date, vote_average, genre_ids FROM movies ORDER BY vote_average DESC LIMIT {n}) as subquery;")
+    # cur.excute(f"genre_ids")
    
     # display the query result
     result = cur.fetchone()[0]
