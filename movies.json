@@ -1,0 +1,23 @@
+[
+    {
+    "adult":false,
+    "name":"Mad Max Collection",
+    "genres":[{"id":18,"name":"Drama"},{"id":53,"name":"Thriller"}],
+    "poster_path":"/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+    "score":"10"
+    },
+    {
+        "adult":false,
+        "name":"Matrix Collection",
+        "genres":[{"id":878,"name":"Science Fiction"},{"id":28,"name":"Action"}],
+        "poster_path":"/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+        "score":"7"
+    },
+    {
+        "adult":false,
+        "name":"Bodyguard",
+        "genres":[{"id":18,"name":"Drama"},{"id":10749,"name":"Romance"}],
+        "poster_path":"/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+        "scores":"4"
+    }
+]
