@@ -1,0 +1,2 @@
+//20 items avant de commencer => 20 plus pops dans bdd => puis train model_user1.py sur les 20 preums
+rajouter des items à chaque fois que le user renseigne ses gours (espaxce dédié) => quand quitte, entraine le modele user1.py sur ce json. réduire le surapparentissage

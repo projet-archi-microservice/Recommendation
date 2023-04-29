@@ -61,22 +61,22 @@ def get_model(df):
     df = pd.DataFrame(df)
     
     # Normalize the genres column and drop unnecessary columns
-    df = pd.json_normalize(df, record_path='genres', meta=['adult', 'name', 'poster_path', 'note'])
-    df = df.drop(columns=['adult', 'poster_path'])
+    df = pd.json_normalize(df, record_path='genres', meta=['id', 'title','release_date', 'poster_path', 'vote_average'])
+    df = df.drop(columns=['adult', 'poster_path', 'title','id'])
     
     # Group the dataframe by movie name and score, and aggregate the genres column into a list
-    df = df.groupby(['name', 'note'])['id'].apply(list).reset_index(name='genres')
+    df = df.groupby(['title', 'vote_average'])['id'].apply(list).reset_index(name='genre_ids')
     
     # Sort the dataframe by score and reset the index
-    df = df.sort_values(by='note', ascending=False)
+    df = df.sort_values(by='vote_average', ascending=False)
     df = df.reset_index(drop=True)
 
     # Split the genres list into separate columns and drop the 'id' column
-    features = pd.concat([df.drop(['note', 'genres'], axis=1), pd.json_normalize(df['genres'])], axis=1)
+    features = pd.concat([df.drop(['vote_average', 'genre_ids'], axis=1), pd.json_normalize(df['genre_ids'])], axis=1)
     features = features.drop(columns=['id'])
 
     # Split the data into training and testing sets
-    x_train, x_test, y_train, y_test = train_test_split(features, df['note'], test_size=0.2, random_state=40)
+    x_train, x_test, y_train, y_test = train_test_split(features, df['vote_average'], test_size=0.2, random_state=40)
     
     # Create a regression model using Random Forest
     model = RandomForestClassifier(random_state=1)
