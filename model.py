@@ -9,37 +9,35 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-def get_best_movies(n=3):
-    
+
+def get_best_movies():
     """
     Cette fonction lit le fichier 'movies.json', trie les films en fonction de leur note décroissante 
-    et renvoie un dictionnaire contenant les informations des n premiers films (5 par défaut).
-    
-    Args:
-        n (int): nombre de films à renvoyer (5 par défaut).
+    et renvoie les informations des trois meilleurs films en JSON.
     
     Returns:
-        List[Dict]: une liste contenant les informations des n premiers films triés par note décroissante.
+        JSON: un dictionnaire contenant les informations des trois meilleurs films triés par note décroissante.
     """
     
     # On lit le fichier 'movies.json' avec Pandas et on trie les films par note décroissante.
     df = pd.read_json('movies.json')
-    df = df.sort_values(by='score', ascending=False)
+    df = df.sort_values(by='vote_average', ascending=False)
     
-    # On crée une liste pour stocker les informations des n premiers films.
+    # On crée une liste pour stocker les informations des trois meilleurs films.
     best_movies = []
     
-    # On parcourt les n premiers films et on ajoute les informations dans la liste 'best_movies'.
-    for i in range(n):
-        movie = {'adult': int(df.iloc[i]['adult']),
-                 'name': df.iloc[i]['name'],
-                 'genres': df.iloc[i]['genres'],
-                 'poster_path': df.iloc[i]['poster_path'],
-                 'score': df.iloc[i]['score']}
+    # On parcourt les trois meilleurs films et on ajoute les informations dans la liste 'best_movies'.
+    for i in range(3):
+        genres = [{'id': genre_ids} for genre_ids in df.iloc[i]['genre_ids']]
+        movie = {'title': df.iloc[i]['title'],
+                 'genre_ids': genres,
+                 'vote_average': df.iloc[i]['vote_average']}
         best_movies.append(movie)
     
-    # On renvoie la liste 'best_movies'.
+    # On retourne les informations des trois meilleurs films en JSON.
+    print(df.iloc[0])
     return best_movies
+
 
 
 

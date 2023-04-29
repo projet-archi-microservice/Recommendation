@@ -1,8 +1,3 @@
-# from fastapi import FastAPI
-# from fastapi.responses import FileResponse
-# from pydantic import BaseModel
-# from model import *
-    
 # class Wine(BaseModel):
 #     fixedAcidity : float
 #     volatileAcidity : float
@@ -57,24 +52,6 @@
 #     descript = description(model, x_test, y_test)
 #     return{"Voici les paramètres du modèle": descript[0] , " avec un précision de" : descript[1]}
 
-# @app.put("/api/model")
-# async def create_wine(new : New_wine_in_df):
-#     df = pd.read_csv("Wines.csv")
-#     new_row = {'fixedAcidity' : new.fixedAcidity,
-#     'volatileAcidity' : new.volatileAcidity,
-#     'citricAcid' : new.citricAcid,
-#     'residualSugar' :new.residualSugar,
-#     'chlorides' : new.chlorides,
-#     'freeSulfurDioxide' : new.freeSulfurDioxide,
-#     'totalSulfurDioxide' : new.totalSulfurDioxide,
-#     'density' : new.density,
-#     'pH' : new.pH,
-#     'sulphates' : new.sulphates,
-#     'alcohol' : new.alcohol,
-#     'quality' : new.quality
-#     }
-#     add_to_df(df,new_row)
-#     return {"On a bien rajouté une entrée au modele"}
 
 # @app.post("/api/predict")
 # async def create_wine(Wine: Wine):
@@ -115,7 +92,7 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
-    best_movies = get_best_movies(n=3)
+    best_movies = get_best_movies()
     return {"message": "Welcome to the movie recommendation API!", "best_movies": best_movies}
 
 
