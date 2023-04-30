@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+
+from Utilisateur import User
 from model import *
 from get_movie_list import *
 from genres import *
 from gen_user_token import *
-from create_user import *
 from check_token import *
+from user_fonction import *
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -89,3 +91,17 @@ async def retrain_model(token):
     else:
         return {"Invalid token"}
 
+
+@app.post("/api/postUser")
+async def post_user(user: User, token):
+    if(check_token(token)):
+        return {"message": post_user_bdd(user)}
+    else:
+        return {"Invalid Token"}
+
+@app.get("/api/getUser")
+async def get_user(name: string, token):
+    if(check_token(token)):
+        return {"message": get_user_bdd(name)}
+    else:
+        return {"Invalid Token"}
