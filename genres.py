@@ -25,7 +25,6 @@ def config(filename='database.ini', section='postgresql'):
 def get_genre(id):
     # read connection parameters
     params = config()
-    n = 30
     
     # connect to the PostgreSQL server
     conn = psycopg2.connect(**params)

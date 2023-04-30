@@ -38,5 +38,3 @@ def create_user(name, email, password):
     cur.close()
     conn.commit()
     conn.close()
-    
-create_user('John', 'password', 'john@arbuckle.com')

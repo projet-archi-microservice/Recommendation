@@ -45,12 +45,12 @@ def get_user_token(name, password):
     if(result == None):
         return "Invalid Account"
     else :
-        if result[2] != password:
+        if result[3] != password:
             return "Invalid Password"
 
     payload = {
         'username': result[1],
-        'email': result[3]
+        'email': result[2]
     }
     
     secret_key = 'my-secret-key'
