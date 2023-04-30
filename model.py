@@ -3,43 +3,48 @@ import pandas as pd
 import pickle
 import json
 
+import psycopg2
+from configparser import ConfigParser
+import os
+
 from pandas import json_normalize
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
+def config():
+    db = {
+      'host': os.environ.get('DB_HOST'),
+      'database': os.environ.get('DB_DB'),
+      'password': os.environ.get('DB_PASSWORD'),
+      'user': os.environ.get('DB_USER'),
+      'port': os.environ.get('DB_PORT')
+    }
+
+    return db
 
 def get_best_movies():
-    """
-    Cette fonction lit le fichier 'movies.json', trie les films en fonction de leur note décroissante 
-    et renvoie les informations des trois meilleurs films en JSON.
+    # read connection parameters
+    params = config()
     
-    Returns:
-        JSON: un dictionnaire contenant les informations des trois meilleurs films triés par note décroissante.
-    """
+    # connect to the PostgreSQL server
+    conn = psycopg2.connect(**params)
     
-    # On lit le fichier 'movies.json' avec Pandas et on trie les films par note décroissante.
-    df = pd.read_json('movies.json')
-    df = df.sort_values(by='vote_average', ascending=False)
+    # create a cursor
+    cur = conn.cursor()
+        
+    # execute a statement
+    cur.execute(f"SELECT json_agg(json_build_object('id', id, 'title', title, 'release_date', release_date, 'poster_path', poster_path, 'genre_ids', genre_ids, 'vote_average', vote_average)) FROM (SELECT DISTINCT id, title, release_date, vote_average, poster_path, genre_ids, adult FROM movies WHERE adult = false AND vote_average < 9 ORDER BY vote_average DESC LIMIT 3) as subquery;")
+    # cur.excute(f"genre_ids")
+   
+    # display the query result
+    result = cur.fetchone()[0]
+    print(result)
     
-    # On crée une liste pour stocker les informations des trois meilleurs films.
-    best_movies = []
-    
-    # On parcourt les trois meilleurs films et on ajoute les informations dans la liste 'best_movies'.
-    for i in range(3):
-        genres = [{'id': genre_ids} for genre_ids in df.iloc[i]['genre_ids']]
-        movie = {'title': df.iloc[i]['title'],
-                 'genre_ids': genres,
-                 'vote_average': df.iloc[i]['vote_average'],
-                 'release_date': df.iloc[i]['release_date'],
-                 'poster_path':df.iloc[i]['poster_path']
-                 }
-        best_movies.append(movie)
-    
-    # On retourne les informations des trois meilleurs films en JSON.
-    print(df.iloc[0])
-    return best_movies
+    cur.close()
+    conn.close()
+    return result;
 
 
 

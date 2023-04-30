@@ -1,23 +1,18 @@
 import psycopg2
 import json
+import os
 
 from configparser import ConfigParser
 
 
-def config(filename='database.ini', section='postgresql'):
-    # create a parser
-    parser = ConfigParser()
-    # read config file
-    parser.read(filename)
-
-    # get section, default to postgresql
-    db = {}
-    if parser.has_section(section):
-        params = parser.items(section)
-        for param in params:
-            db[param[0]] = param[1]
-    else:
-        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+def config():
+    db = {
+      'host': os.environ.get('DB_HOST'),
+      'database': os.environ.get('DB_DB'),
+      'password': os.environ.get('DB_PASSWORD'),
+      'user': os.environ.get('DB_USER'),
+      'port': os.environ.get('DB_PORT')
+    }
 
     return db
 
@@ -33,7 +28,7 @@ def get_n_movies(n):
     cur = conn.cursor()
         
     # execute a statement
-    cur.execute(f"SELECT json_agg(json_build_object('id', id, 'title', title, 'release_date', release_date, 'poster_path', poster_path, 'genre_ids', genre_ids, 'vote_average', vote_average)) FROM (SELECT id, title, release_date, vote_average, poster_path, genre_ids FROM movies ORDER BY vote_average DESC LIMIT {n}) as subquery;")
+    cur.execute(f"SELECT json_agg(json_build_object('id', id, 'title', title, 'release_date', release_date, 'poster_path', poster_path, 'genre_ids', genre_ids, 'vote_average', vote_average)) FROM (SELECT id, title, release_date, vote_average, poster_path, genre_ids, adult FROM movies WHERE adult = false ORDER BY vote_average DESC LIMIT {n}) as subquery;")
     # cur.excute(f"genre_ids")
    
     # display the query result
