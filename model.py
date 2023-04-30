@@ -31,7 +31,10 @@ def get_best_movies():
         genres = [{'id': genre_ids} for genre_ids in df.iloc[i]['genre_ids']]
         movie = {'title': df.iloc[i]['title'],
                  'genre_ids': genres,
-                 'vote_average': df.iloc[i]['vote_average']}
+                 'vote_average': df.iloc[i]['vote_average'],
+                 'release_date': df.iloc[i]['release_date'],
+                 'poster_path':df.iloc[i]['poster_path']
+                 }
         best_movies.append(movie)
     
     # On retourne les informations des trois meilleurs films en JSON.
